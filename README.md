@@ -1,2 +1,2 @@
 # update-version
-update version using datetime format for python projects 
+update version using datetime format for python projects
