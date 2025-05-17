@@ -51,7 +51,7 @@ def update_version() -> str:
     from .toml import get_project_toml
 
     project_toml = get_project_toml()
-    version = get_version()
+    version = get_version(project_toml)
     nextv = next_version(version)
 
     nextv = str_version(nextv)

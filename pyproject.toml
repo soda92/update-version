@@ -1,6 +1,6 @@
 [project]
 name = "soda-update-version"
-version = "2025.5.17.0"
+version = "2025.5.17.4"
 description = "update version using datetime format for python projects"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -36,4 +36,4 @@ packages = ["soda_update_version"]
 # exclude is not needed because wheel is build from sdist in uv
 
 [project.scripts]
-update_version = "soda_update_vesrion.update_version:main"
+update_version = "soda_update_version.main:main"
