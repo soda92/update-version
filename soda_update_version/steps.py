@@ -1,5 +1,6 @@
 import subprocess
-from .update_version import update_version  # noqa: F401
+from .version import update_version  # noqa: F401
+
 "steps to perform"
 
 
@@ -23,4 +24,11 @@ def upload(version: str):
 
 def git_tag(version: str):
     subprocess.run(["git", "tag", version], check=True)
-    subprocess.run(["git", "push", "--tags"])
+
+
+def git_commit(version: str):
+    # git_stat = subprocess.getoutput("git status")
+    # if not "working tree clean" in git_stat:
+    #     print("please commit your changes first")
+    subprocess.run(["git", "add", "."], check=True)
+    subprocess.run(["git", "commit", "-m", f"bump version to {version}"])
