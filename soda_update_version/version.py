@@ -54,13 +54,15 @@ def update_version() -> str:
     version = get_version(project_toml)
     nextv = next_version(version)
 
-    nextv = str_version(nextv)
+    old_version_str = str_version(version)
+    new_version_str = str_version(nextv)
 
-    project_toml.write_text(
-        encoding="utf8",
-        data=project_toml.read_text(encoding="utf8").replace(
-            str_version(version), str_version(nextv)
-        ),
-    )
+    old_line = f'version = "{old_version_str}"'
+    new_line = f'version = "{new_version_str}"'
 
-    return nextv
+    content = project_toml.read_text(encoding="utf8")
+    new_content = content.replace(old_line, new_line, 1)
+
+    project_toml.write_text(encoding="utf8", data=new_content)
+
+    return new_version_str
