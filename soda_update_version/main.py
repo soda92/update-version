@@ -4,8 +4,8 @@ from .steps import build, upload, git_tag, update_version, git_commit
 
 
 def main():
-    version = update_version()
     args = get_args()
+    version = update_version()
     if args.build:
         build()
         if args.upload:
@@ -15,13 +15,25 @@ def main():
         git_commit(version)
 
     if args.git_push:
-        subprocess.run(["git", "push"])
+        result = subprocess.run(
+            ["git", "remote"], capture_output=True, text=True, check=True
+        )
+        remotes = result.stdout.strip().split("\n")
+        for remote in remotes:
+            print(f"Pushing to remote: {remote}")
+            subprocess.run(["git", "push", remote], check=True)
 
     if args.git_tag:
         git_tag(version)
 
         if args.git_push:
-            subprocess.run(["git", "push", "--tags"])
+            result = subprocess.run(
+                ["git", "remote"], capture_output=True, text=True, check=True
+            )
+            remotes = result.stdout.strip().split("\n")
+            for remote in remotes:
+                print(f"Pushing tags to remote: {remote}")
+                subprocess.run(["git", "push", remote, "--tags"], check=True)
 
 
 if __name__ == "__main__":

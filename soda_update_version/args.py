@@ -55,7 +55,7 @@ def get_args() -> Arg:
         "-p",
         action="store_true",
         default=False,
-        help="create a git tag",
+        help="push to git origin",
     )
 
     args_obj = parser.parse_args()
