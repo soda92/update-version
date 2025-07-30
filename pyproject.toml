@@ -1,6 +1,6 @@
 [project]
 name = "soda-update-version"
-version = "2025.7.24.0"
+version = "2025.7.30.0"
 description = "update version using datetime format for python projects"
 readme = "README.md"
 requires-python = ">=3.11"
