@@ -22,6 +22,7 @@ class Arg:
 
 def get_args() -> Arg:
     parser = argparse.ArgumentParser()
+    args = Arg()
 
     parser.add_argument(
         "--build", "-b", action="store_true", default=False, help="build package"
@@ -58,11 +59,5 @@ def get_args() -> Arg:
         help="push to git origin",
     )
 
-    args_obj = parser.parse_args()
-    args = Arg()
-    args.build = args_obj.build
-    args.upload = args_obj.upload
-    args.git_tag = args_obj.git_tag
-    args.git_commit = args_obj.git_commit
-    args.git_push = args_obj.git_push
+    parser.parse_args(namespace=args)
     return args

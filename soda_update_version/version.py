@@ -1,68 +1,88 @@
 from pathlib import Path
+import datetime
+import tomllib
 
 
 def get_version(project_toml: Path) -> list[int]:
-    content = project_toml.read_text(encoding="utf8")
-    import re
-
-    versions = re.findall(r'version = "([0-9\.]+)"', content)
-    if len(versions) == 0:
-        print("cannot find version")
-        exit(-1)
-
-    if versions[0].count(".") != 3:  # year, month, day, rev
-        print("incorrect version format")
-        exit(-1)
-
-    year, month, day, rev = versions[0].split(".")
+    """
+    从 toml 文件中获取版本号。
+    如果版本号不存在或格式不正确，则返回基于当前日期的新版本号。
+    """
     try:
-        year = int(year)
-        month = int(month)
-        day = int(day)
-        rev = int(rev)
-    except ValueError:
-        print("incorrect version format")
-        exit(-1)
+        with project_toml.open("rb") as f:
+            data = tomllib.load(f)
+        version_str = data["project"]["version"]
+        # 检查版本号格式是否为 x.x.x.x
+        if version_str.count(".") != 3:
+            raise ValueError("版本号必须有4个部分")
+        # 将版本号的每个部分转换为整数
+        parts = [int(p) for p in version_str.split(".")]
+        return parts
+    except (KeyError, ValueError, FileNotFoundError):
+        # 如果找不到版本或格式错误，则使用当前日期作为新版本
+        print("未找到有效版本号或格式不正确，将使用当前日期生成新版本。")
+        now = datetime.datetime.now()
+        return [now.year, now.month, now.day, 0]
 
-    return [year, month, day, rev]
 
-
-def next_version(version: list[int]) -> str:
+def next_version(version: list[int]) -> list[int]:
+    """
+    根据当前版本和日期生成下一个版本号。
+    如果日期与版本中的日期相同，则修订号加1。
+    如果日期不同，则使用当前日期，修订号重置为0。
+    """
     year, month, day, rev = version
-    new_version = [year, month, day, rev]
-    import datetime
-
     now = datetime.datetime.now()
+    # 检查版本中的日期是否是今天
     if year == now.year and month == now.month and day == now.day:
-        new_version[3] += 1
+        # 如果是今天，修订号加1
+        return [year, month, day, rev + 1]
     else:
-        new_version = [now.year, now.month, now.day, 0]
-
-    return new_version
+        # 如果不是今天，使用当前日期，修订号为0
+        return [now.year, now.month, now.day, 0]
 
 
 def str_version(version: list[int]) -> str:
-    if isinstance(version, str):
-        return version
+    """将列表形式的版本号转换为字符串。"""
     return ".".join(map(str, version))
 
 
 def update_version() -> str:
+    """
+    更新 toml 文件中的版本号。
+    """
     from .toml import get_project_toml
 
     project_toml = get_project_toml()
+    # 获取当前版本
     version = get_version(project_toml)
+    # 获取下一个版本
     nextv = next_version(version)
 
+    # 将新旧版本转换为字符串
     old_version_str = str_version(version)
     new_version_str = str_version(nextv)
 
+    # 准备要替换的整行内容，以避免错误替换
     old_line = f'version = "{old_version_str}"'
     new_line = f'version = "{new_version_str}"'
 
     content = project_toml.read_text(encoding="utf8")
+    # 仅替换第一个匹配的行
     new_content = content.replace(old_line, new_line, 1)
 
-    project_toml.write_text(encoding="utf8", data=new_content)
+    # 如果内容没有变化（例如，当找不到旧版本行时），则不写入文件
+    if content != new_content:
+        project_toml.write_text(encoding="utf8", data=new_content)
+    else:
+        # 如果旧版本行未找到，可能是因为格式错误导致 get_version 返回了新日期
+        # 在这种情况下，我们仍然需要更新文件
+        content_lines = content.splitlines()
+        for i, line in enumerate(content_lines):
+            if line.strip().startswith("version ="):
+                content_lines[i] = new_line
+                new_content = "\n".join(content_lines)
+                project_toml.write_text(encoding="utf8", data=new_content)
+                break
 
     return new_version_str

@@ -14,6 +14,9 @@ def main():
     if args.git_commit:
         git_commit(version)
 
+    if args.git_tag:
+        git_tag(version)
+
     if args.git_push:
         result = subprocess.run(
             ["git", "remote"], capture_output=True, text=True, check=True
@@ -22,16 +25,7 @@ def main():
         for remote in remotes:
             print(f"Pushing to remote: {remote}")
             subprocess.run(["git", "push", remote], check=True)
-
-    if args.git_tag:
-        git_tag(version)
-
-        if args.git_push:
-            result = subprocess.run(
-                ["git", "remote"], capture_output=True, text=True, check=True
-            )
-            remotes = result.stdout.strip().split("\n")
-            for remote in remotes:
+            if args.git_tag:
                 print(f"Pushing tags to remote: {remote}")
                 subprocess.run(["git", "push", remote, "--tags"], check=True)
 
