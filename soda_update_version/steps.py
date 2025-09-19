@@ -1,5 +1,6 @@
 import subprocess
 from .version import update_version  # noqa: F401
+import sys
 
 "steps to perform"
 
@@ -11,6 +12,8 @@ def build():
 def upload(version: str):
     subprocess.run(
         [
+            sys.executable,
+            "-m",
             "twine",
             "upload",
             "--repository",
