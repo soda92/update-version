@@ -1,6 +1,6 @@
 from pathlib import Path
 import datetime
-import tomllib
+import tomli as tomllib
 
 
 def get_version(project_toml: Path) -> list[int]:

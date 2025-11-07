@@ -1,11 +1,12 @@
 [project]
 name = "soda-update-version"
-version = "2025.9.19.2"
+version = "2025.11.7.0"
 description = "update version using datetime format for python projects"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.8"
 dependencies = [
-    "twine>=6.2.0",
+    "tomli>=2.3.0",
+    "twine>=6.1.0",
 ]
 
 
